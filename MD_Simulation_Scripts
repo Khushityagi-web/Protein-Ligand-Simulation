@@ -1,0 +1,18 @@
+## feat: Add script to sort bonds in MOL2 file
+- Added a Perl script (`sort_mol2_bonds.pl`) to sort the bonds section of a MOL2 file.
+- Ensures bond records are ordered consistently for compatibility with downstream molecular docking and simulation workflows.
+- Overwrites the original MOL2 file after sorting (input and output are the same file).
+- Sorting logic likely based on bond type or atom indices for standardization.
+
+## Usage:
+perl sort_mol2_bonds.pl <input.mol2> <output.mol2>
+perl sort_mol2_bonds.pl LIG.mol2 LIG_sorted.mol2  (command)
+
+## Added GROMACS pdb2gmx command to generate topology and coordinate files for REC.pdb while ignoring existing hydrogen atoms. This prepares the receptor structure for further molecular dynamics simulations.
+gmx pdb2gmx -f REC.pdb -ignh  (command)
+8  (Selected CHARMM27 force field (option 8) for generating topology files due to its robust all-atom representation, CMAP corrections for proteins, and versatility for proteins, nucleic acids, and lipids. This ensures detailed and accurate molecular dynamics simulations.)
+1  (Selected TIP3P water model (option 1) for the simulation due to its high compatibility with the CHARMM27 force field, computational efficiency, and widespread use in biomolecular dynamics. This choice ensures reliability while maintaining reasonable accuracy and performance.)
+Topology file: topol.top  (output file)
+
+## 
+
