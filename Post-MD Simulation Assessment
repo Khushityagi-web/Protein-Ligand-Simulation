@@ -1,1 +1,70 @@
+## Recentered and rewrapped trajectory with GROMACS trjconv
+# Used `gmx trjconv` to recenter and rewrap the simulation trajectory.
+# Recentering ensures the molecule of interest (e.g., protein) is at the center of the box.
+# Rewrapped coordinates ensure whole molecules are intact under periodic boundary conditions.
+# Output trajectory saved as MD_center.xtc for further analysis or visualization.
+  gmx trjconv -s MD.tpr -f MD.xtc -o MD_center.xtc -center -pbc mol -ur compact (command)
+Select group for centering:
+1  (Group 1 (Protein) has  4918 elements)
+Select group for output:
+0      (Group 0 (System) has 46817 elements)
 
+## Performed RMSD calculations for MD trajectory
+# Calculated the RMSD of atomic positions from the reference structure using GROMACS.
+# Input trajectory (MD_center.xtc) was compared to the reference structure (MD.tpr).
+# Generated RMSD data output (rmsd.xvg) for plotting and analysis.
+  gmx rms -s MD.tpr -f MD_center.xtc -o rmsd.xvg  (command)
+Select group for least squares fit:
+1  (Group 1 (Protein) has  4918 elements)
+Select group for RMSD calculation:
+13   (Group 13 (LIG) has 52 elements)
+
+## Visualize RMSD over time using xmgrace
+# Used xmgrace to generate a graphical plot from the rmsd.xvg file.
+# The plot shows RMSD variations during the simulation to evaluate system stability and structural changes.
+xmgrace rmsd.xvg  (command)
+
+## Calculate RMSD over time for trajectory using gmx rms
+# Used gmx rms to calculate the Root Mean Square Deviation (RMSD) from the MD_center.xtc trajectory with reference to the MD.tpr structure.
+# The results were saved in rmsd.xvg with time units in nanoseconds to assess structural stability and convergence.
+gmx rms -s MD.tpr -f MD_center.xtc -o rmsd.xvg -tu ns   (command)
+
+## Again, Visualize RMSD over time using xmgrace
+# Used xmgrace to generate a graphical plot from the rmsd.xvg file.
+# The plot shows RMSD variations during the simulation to evaluate system stability and structural changes.
+xmgrace rmsd.xvg  (command)
+
+## Added script for RMSF calculation using GROMACS. 
+# The command computes residue/atom fluctuations from their average positions based on the MD trajectory. 
+# Input files include `MD.tpr` for topology and `MD_center.xtc` for the centered trajectory. 
+# Output is saved as `rmsf.xvg`, providing a per-atom or per-residue RMSF profile. 
+# Useful for assessing flexibility or stability of specific regions during simulation.
+gmx rmsf -s MD.tpr -f MD_center.xtc -o rmsf.xvg  (command)
+Select a group:
+13  (Groupv13 (LIG) has 52 elements)
+
+## Added visualization step for RMSF analysis using XMGrace. 
+# The `rmsf.xvg` file, containing RMSF data (atom/residue index vs. fluctuation), is plotted to assess the flexibility of specific regions. 
+# This step provides a clear graphical representation to interpret simulation results effectively.
+xmgrace rmsf.xvg  (command)
+xmgrace -hardcopy -hdevice EPS rmsf.xvg  (command)
+epstopdf rmsf.eps  (command)
+
+# Analyzed hydrogen bonds in MD trajectory using gmx hbond; results saved in hb.xvg with time units in nanoseconds.
+gmx hbond -s MD.tpr -f MD_center.xtc -num hb.xvg -tu ns  (command)
+Specify 2 groups to analyze:
+1    (Group 1 (Protein) has  4918 elements)
+13   (Group    13 ( LIG) has 52 elements)
+xmgrace hb.xvg  (Plotted hydrogen bond analysis results (hb.xvg) using XMGrace for visual inspection of hydrogen bond dynamics over time.)
+
+## Added command for calculating the radius of gyration using GROMACS to analyze MD simulation results
+gmx gyrate -s MD.tpr -f MD_center.xtc -o gyrate1.xvg  (command)
+Select a group:
+1    (Group 1 : Protein)
+xmgrace gyrate1.xvg  (Used xmgrace to visualize the radius of gyration data from gyrate1.xvg)
+
+## Extracted energy components from MD simulation using gmx energy and saved results to energy1.xvg for analysis
+gmx energy -f MD.edr -o energy1.xvg  (command)
+Select the terms you want from the following list by:
+48  (# Selected T-Protein_LIG (48) to analyze the protein-ligand complex in the simulation)
+xmgrace -nxy energy1.xvg  (# Visualized energy data from energy1.xvg using xmgrace with an XY plot format)
