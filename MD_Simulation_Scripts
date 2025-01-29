@@ -1,18 +1,147 @@
-## feat: Add script to sort bonds in MOL2 file
-- Added a Perl script (`sort_mol2_bonds.pl`) to sort the bonds section of a MOL2 file.
-- Ensures bond records are ordered consistently for compatibility with downstream molecular docking and simulation workflows.
-- Overwrites the original MOL2 file after sorting (input and output are the same file).
-- Sorting logic likely based on bond type or atom indices for standardization.
-
-## Usage:
-perl sort_mol2_bonds.pl <input.mol2> <output.mol2>
-perl sort_mol2_bonds.pl LIG.mol2 LIG_sorted.mol2  (command)
+## Add script to sort bonds in MOL2 file
+# Added a Perl script (`sort_mol2_bonds.pl`) to sort the bonds section of a MOL2 file.
+# Ensures bond records are ordered consistently for compatibility with downstream molecular docking and simulation workflows.
+# Overwrites the original MOL2 file after sorting (input and output are the same file).
+# Sorting logic likely based on bond type or atom indices for standardization.
+Usage: perl sort_mol2_bonds.pl <input.mol2> <output.mol2>
+perl sort_mol2_bonds.pl LIG.mol2 LIG_sorted.mol2 (command)
 
 ## Added GROMACS pdb2gmx command to generate topology and coordinate files for REC.pdb while ignoring existing hydrogen atoms. This prepares the receptor structure for further molecular dynamics simulations.
 gmx pdb2gmx -f REC.pdb -ignh  (command)
-8  (Selected CHARMM27 force field (option 8) for generating topology files due to its robust all-atom representation, CMAP corrections for proteins, and versatility for proteins, nucleic acids, and lipids. This ensures detailed and accurate molecular dynamics simulations.)
-1  (Selected TIP3P water model (option 1) for the simulation due to its high compatibility with the CHARMM27 force field, computational efficiency, and widespread use in biomolecular dynamics. This choice ensures reliability while maintaining reasonable accuracy and performance.)
-Topology file: topol.top  (output file)
+#Selected CHARMM27 force field (option 8) for generating topology files due to its robust all-atom representation, CMAP corrections for proteins, and versatility for proteins, nucleic acids, and lipids. This ensures detailed and accurate molecular dynamics simulations.
+8
+#Selected TIP3P water model (option 1) for the simulation due to its high compatibility with the CHARMM27 force field, computational efficiency, and widespread use in biomolecular dynamics. 
+#This choice ensures reliability while maintaining reasonable accuracy and performance.
+1
+#Topology file: topol.top (output file)
 
-## 
+## Used gmx editconf to convert LIG_sp.pdb to LIG_sp.gro.
+# Ensured compatibility of ligand structure with GROMACS workflows.
+# Prepared ligand structure for subsequent molecular dynamics simulations.
 
+## Edit conf.gro and LIG_sp.gro using nano 
+nano conf.gro (command)
+nano LIG_sp.gro (command)
+#(Check the column number from where the lig.gro data ends (x) in conf.gro and replace the value in 2nd line by x-3)
+#(Open file in chimera to check ligand and receptor)
+
+#Update topol.top to include ligand topology and update lig.itp molecule type.
+
+#Added simulation box generation command for GROMACS:
+- Set triclinic box type with a 1.0 nm buffer around the solute.
+- Input file: conf.gro, Output file: box.gro.
+gmx editconf -f conf.gro -d 1.0 -bt triclinic -o box.gro (command)
+
+## Added solvation step for the simulation system:
+# Solvated the simulation box (box.gro) using SPC/E water model.
+# Updated topology file (topol.top) to include solvent molecules.
+# Output file: box_sol.gro containing the solvated system.
+gmx solvate -cp box.gro -cs spc216.gro -p topol.top -o box_sol.gro (command)
+
+# Added visualization step for the solvated system:
+# Used VMD to inspect the solvated system (box_sol.gro).
+# Verified solute is properly surrounded by solvent and box dimensions are correct.
+
+## Prepared run input file for ion addition:
+# Used grompp to process the solvated system (box_sol.gro).
+# Input parameters: ions.mdp, topology: topol.top.
+# Generated output file: ION.tpr for the next simulation step.
+gmx grompp -f ions.mdp -c box_sol.gro -p topol.top -o ION.tpr (command)
+
+## Prepared binary input file for ion addition using grompp:
+# Processed simulation parameters from ions.mdp.
+# Used the solvated coordinate file box_sol.gro.
+# Allowed up to 2 warnings during preprocessing with -maxwarn 2.
+# Output the compiled system file ION.tpr for the next step in the workflow.
+gmx grompp -f ions.mdp -c box_sol.gro -maxwarn 2 -p topol.top -o ION.tpr (command)
+
+## Added ions to the solvated system using genion:
+# Neutralized the system's charge and set an ion concentration of 0.1 mol/L.
+# Used ION.tpr as input and updated topology in topol.top.
+# Generated the output coordinate file box_sol_ion.gro with ions included.
+gmx genion -s ION.tpr -p topol.top -conc 0.1 -neutral -o box_sol_ion.gro (command)
+Select a continuous group of solvent molecules:
+15 (Group  15 ( SOL) has 41973 elements)
+
+## Prepared input files for energy minimization:
+# Used EM.mdp as the parameter file.
+# Input structure file: box_sol_ion.gro (solvated system with ions).
+# Topology updated in topol.top.
+# Generated EM.tpr for the energy minimization run.
+gmx grompp -f EM.mdp -c box_sol_ion.gro -p topol.top -o EM.tpr (command)
+
+## Executed energy minimization:
+# Ran mdrun with verbose output to monitor progress.
+# Used EM.tpr as input, and generated output files for energy minimization (EM.log, EM.edr, EM.gro).
+# Ensured the system is relaxed and ready for further simulations.
+gmx mdrun -v -deffnm EM(command)
+
+## Created custom index file for ligands:
+# Used LIG.gro as the input structure file.
+# Generated index_LIG.ndx for selecting specific atom or molecule groups in future analyses or simulations.
+gmx make_ndx -f LIG.gro -o index_LIG.ndx (command)
+ > 0 & ! a H* ( 0 System : 52 atoms, '&': and, '!': not, 'a': atom, H* : atoms with name H* )
+q
+
+Generated position restraints for the ligand:
+- Used LIG.gro as the input structure and index_LIG.ndx for atom selection.
+- Created posre_LIG.itp with strong position restraints (fc = 1000) for ligand atoms.
+- Ensured the ligand remains fixed during the simulation while other parts of the system move.
+gmx genrestr -f LIG.gro -n index_LIG.ndx -o posre_LIG.itp -fc 1000 1000 1000 (command)
+# Select group to position restrain:
+3    (Group 3 (System_&_!H*) has    29 elements)
+
+# Added command to generate index groups for simulation
+- Used `gmx make_ndx` to create an index file for specific atom groups in EM.gro.
+- Output file: index.ndx
+- This file is essential for defining groups for further analysis and simulation steps.
+gmx make_ndx -f EM.gro -o index.ndx (command)
+> 1 | 13    (1 Protein: 4918 atoms and 13 LIG:52 atoms) (Copied index group 1 'Protein' Copied index group 13 'LIG' Merged two groups with OR: 4918 52 -> 4970)
+> q          (q: save and quit)
+
+# Prepared input files for the NVT equilibration step:
+- Used NVT.mdp for the simulation parameters.
+- Input structure (EM.gro) from energy minimization is provided.
+- Reference file (EM.gro) added to apply position restraints during equilibration.
+- Topology file (topol.top) and custom index groups (index.ndx) specified.
+- Allowed minor warnings (-maxwarn 2) to proceed with input generation.
+- Generated NVT.tpr as the output for the NVT equilibration run.
+gmx grompp -f NVT.mdp -c EM.gro -r EM.gro -p topol.top -n index.ndx -maxwarn 2 -o NVT.tpr   (command)
+
+# Ran NVT equilibration step:
+- Used NVT.tpr as the input file for the molecular dynamics run.
+- Simulated the system at constant temperature (NVT ensemble) to relax the solvent around the system.
+- Generated key output files:
+  - NVT.log: Simulation log file.
+  - NVT.edr: Energy data file.
+  - NVT.trr: Trajectory data for positions, velocities, and forces.
+  - NVT.cpt: Checkpoint file for restarting the simulation.
+gmx mdrun -deffnm NVT (command)
+
+# Prepared input for NPT equilibration step:
+- Used NPT.mdp to define parameters for pressure and temperature control (NPT ensemble).
+- Input structure (NVT.gro) from NVT equilibration used as the starting configuration.
+- Reference structure (NVT.gro) specified for position restraints (if applicable).
+- Updated topology file (topol.top) and index file (index.ndx) used for simulation groups.
+- Output NPT.tpr file generated for running the NPT equilibration.
+gmx grompp -f NPT.mdp -c NVT.gro -r NVT.gro -p topol.top -n index.ndx -maxwarn 2 -o NPT.tpr  (command)
+
+# Ran NPT equilibration:
+- Executed the NPT ensemble to equilibrate the system under constant pressure and temperature.
+- Input: NPT.tpr file generated from the grompp step.
+- Generated output files:
+  - NPT.log: Simulation log file.
+  - NPT.edr: Energy file for thermodynamic data.
+  - NPT.xtc: Trajectory file for system coordinates.
+  - NPT.gro: Final structure file after NPT equilibration.
+  - NPT.cpt: Checkpoint file for simulation continuation.
+gmx mdrun -deffnm NPT  (command)
+
+# Prepared the system for molecular dynamics (MD) simulation by generating the input .tpr file using the NPT equilibration results and MD settings. 
+- Included checkpoint file to resume from previous NPT run, and provided topology, index, and MD parameter files. 
+- Used -maxwarn 2 to ignore minor warnings.
+gmx grompp -f MD.mdp -c NPT.gro -t NPT.cpt -p topol.top -n index.ndx -maxwarn 2 -o MD.tpr  (command)
+
+# Ran the molecular dynamics (MD) simulation using the prepared input file (MD.tpr) and specified default filename for output files (MD.trr, MD.edr, MD.gro, MD.log).
+- Simulation was conducted based on the NPT equilibration results with the defined MD parameters.
+gmx mdrun -deffnm MD (command)
