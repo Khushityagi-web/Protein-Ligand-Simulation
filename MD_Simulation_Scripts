@@ -28,8 +28,8 @@ nano LIG_sp.gro (command)
 #Update topol.top to include ligand topology and update lig.itp molecule type.
 
 #Added simulation box generation command for GROMACS:
-- Set triclinic box type with a 1.0 nm buffer around the solute.
-- Input file: conf.gro, Output file: box.gro.
+# Set triclinic box type with a 1.0 nm buffer around the solute.
+# Input file: conf.gro, Output file: box.gro.
 gmx editconf -f conf.gro -d 1.0 -bt triclinic -o box.gro (command)
 
 ## Added solvation step for the simulation system:
@@ -83,53 +83,53 @@ gmx make_ndx -f LIG.gro -o index_LIG.ndx (command)
  > 0 & ! a H* ( 0 System : 52 atoms, '&': and, '!': not, 'a': atom, H* : atoms with name H* )
 q
 
-Generated position restraints for the ligand:
-- Used LIG.gro as the input structure and index_LIG.ndx for atom selection.
-- Created posre_LIG.itp with strong position restraints (fc = 1000) for ligand atoms.
-- Ensured the ligand remains fixed during the simulation while other parts of the system move.
+## Generated position restraints for the ligand:
+# Used LIG.gro as the input structure and index_LIG.ndx for atom selection.
+# Created posre_LIG.itp with strong position restraints (fc = 1000) for ligand atoms.
+# Ensured the ligand remains fixed during the simulation while other parts of the system move.
 gmx genrestr -f LIG.gro -n index_LIG.ndx -o posre_LIG.itp -fc 1000 1000 1000 (command)
-# Select group to position restrain:
-3    (Group 3 (System_&_!H*) has    29 elements)
+Select group to position restrain:
+3    (Group 3 (System_&_!H*) has 29 elements)
 
-# Added command to generate index groups for simulation
-- Used `gmx make_ndx` to create an index file for specific atom groups in EM.gro.
-- Output file: index.ndx
-- This file is essential for defining groups for further analysis and simulation steps.
+## Added command to generate index groups for simulation
+# Used `gmx make_ndx` to create an index file for specific atom groups in EM.gro.
+# Output file: index.ndx
+# This file is essential for defining groups for further analysis and simulation steps.
 gmx make_ndx -f EM.gro -o index.ndx (command)
 > 1 | 13    (1 Protein: 4918 atoms and 13 LIG:52 atoms) (Copied index group 1 'Protein' Copied index group 13 'LIG' Merged two groups with OR: 4918 52 -> 4970)
 > q          (q: save and quit)
 
-# Prepared input files for the NVT equilibration step:
-- Used NVT.mdp for the simulation parameters.
-- Input structure (EM.gro) from energy minimization is provided.
-- Reference file (EM.gro) added to apply position restraints during equilibration.
-- Topology file (topol.top) and custom index groups (index.ndx) specified.
-- Allowed minor warnings (-maxwarn 2) to proceed with input generation.
-- Generated NVT.tpr as the output for the NVT equilibration run.
+## Prepared input files for the NVT equilibration step:
+# Used NVT.mdp for the simulation parameters.
+# Input structure (EM.gro) from energy minimization is provided.
+# Reference file (EM.gro) added to apply position restraints during equilibration.
+# Topology file (topol.top) and custom index groups (index.ndx) specified.
+# Allowed minor warnings (-maxwarn 2) to proceed with input generation.
+# Generated NVT.tpr as the output for the NVT equilibration run.
 gmx grompp -f NVT.mdp -c EM.gro -r EM.gro -p topol.top -n index.ndx -maxwarn 2 -o NVT.tpr   (command)
 
-# Ran NVT equilibration step:
-- Used NVT.tpr as the input file for the molecular dynamics run.
-- Simulated the system at constant temperature (NVT ensemble) to relax the solvent around the system.
-- Generated key output files:
+## Ran NVT equilibration step:
+# Used NVT.tpr as the input file for the molecular dynamics run.
+# Simulated the system at constant temperature (NVT ensemble) to relax the solvent around the system.
+# Generated key output files:
   - NVT.log: Simulation log file.
   - NVT.edr: Energy data file.
   - NVT.trr: Trajectory data for positions, velocities, and forces.
   - NVT.cpt: Checkpoint file for restarting the simulation.
 gmx mdrun -deffnm NVT (command)
 
-# Prepared input for NPT equilibration step:
-- Used NPT.mdp to define parameters for pressure and temperature control (NPT ensemble).
-- Input structure (NVT.gro) from NVT equilibration used as the starting configuration.
-- Reference structure (NVT.gro) specified for position restraints (if applicable).
-- Updated topology file (topol.top) and index file (index.ndx) used for simulation groups.
-- Output NPT.tpr file generated for running the NPT equilibration.
+## Prepared input for NPT equilibration step:
+# Used NPT.mdp to define parameters for pressure and temperature control (NPT ensemble).
+3 Input structure (NVT.gro) from NVT equilibration used as the starting configuration.
+# Reference structure (NVT.gro) specified for position restraints (if applicable).
+# Updated topology file (topol.top) and index file (index.ndx) used for simulation groups.
+# Output NPT.tpr file generated for running the NPT equilibration.
 gmx grompp -f NPT.mdp -c NVT.gro -r NVT.gro -p topol.top -n index.ndx -maxwarn 2 -o NPT.tpr  (command)
 
-# Ran NPT equilibration:
-- Executed the NPT ensemble to equilibrate the system under constant pressure and temperature.
-- Input: NPT.tpr file generated from the grompp step.
-- Generated output files:
+## Ran NPT equilibration:
+# Executed the NPT ensemble to equilibrate the system under constant pressure and temperature.
+# Input: NPT.tpr file generated from the grompp step.
+# Generated output files:
   - NPT.log: Simulation log file.
   - NPT.edr: Energy file for thermodynamic data.
   - NPT.xtc: Trajectory file for system coordinates.
@@ -137,11 +137,11 @@ gmx grompp -f NPT.mdp -c NVT.gro -r NVT.gro -p topol.top -n index.ndx -maxwarn 2
   - NPT.cpt: Checkpoint file for simulation continuation.
 gmx mdrun -deffnm NPT  (command)
 
-# Prepared the system for molecular dynamics (MD) simulation by generating the input .tpr file using the NPT equilibration results and MD settings. 
-- Included checkpoint file to resume from previous NPT run, and provided topology, index, and MD parameter files. 
-- Used -maxwarn 2 to ignore minor warnings.
+## Prepared the system for molecular dynamics (MD) simulation by generating the input .tpr file using the NPT equilibration results and MD settings. 
+# Included checkpoint file to resume from previous NPT run, and provided topology, index, and MD parameter files. 
+# Used -maxwarn 2 to ignore minor warnings.
 gmx grompp -f MD.mdp -c NPT.gro -t NPT.cpt -p topol.top -n index.ndx -maxwarn 2 -o MD.tpr  (command)
 
-# Ran the molecular dynamics (MD) simulation using the prepared input file (MD.tpr) and specified default filename for output files (MD.trr, MD.edr, MD.gro, MD.log).
-- Simulation was conducted based on the NPT equilibration results with the defined MD parameters.
+## Ran the molecular dynamics (MD) simulation using the prepared input file (MD.tpr) and specified default filename for output files (MD.trr, MD.edr, MD.gro, MD.log).
+# Simulation was conducted based on the NPT equilibration results with the defined MD parameters.
 gmx mdrun -deffnm MD (command)
