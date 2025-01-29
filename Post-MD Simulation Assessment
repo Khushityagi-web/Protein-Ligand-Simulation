@@ -23,16 +23,8 @@ Select group for RMSD calculation:
 # Used xmgrace to generate a graphical plot from the rmsd.xvg file.
 # The plot shows RMSD variations during the simulation to evaluate system stability and structural changes.
 xmgrace rmsd.xvg  (command)
-
-## Calculate RMSD over time for trajectory using gmx rms
-# Used gmx rms to calculate the Root Mean Square Deviation (RMSD) from the MD_center.xtc trajectory with reference to the MD.tpr structure.
-# The results were saved in rmsd.xvg with time units in nanoseconds to assess structural stability and convergence.
-gmx rms -s MD.tpr -f MD_center.xtc -o rmsd.xvg -tu ns   (command)
-
-## Again, Visualize RMSD over time using xmgrace
-# Used xmgrace to generate a graphical plot from the rmsd.xvg file.
-# The plot shows RMSD variations during the simulation to evaluate system stability and structural changes.
-xmgrace rmsd.xvg  (command)
+xmgrace -hardcopy -hdevice EPS rmsd.xvg  (command)
+ epstopdf rmsd.eps  (command)
 
 ## Added script for RMSF calculation using GROMACS. 
 # The command computes residue/atom fluctuations from their average positions based on the MD trajectory. 
@@ -56,15 +48,21 @@ Specify 2 groups to analyze:
 1    (Group 1 (Protein) has  4918 elements)
 13   (Group    13 ( LIG) has 52 elements)
 xmgrace hb.xvg  (Plotted hydrogen bond analysis results (hb.xvg) using XMGrace for visual inspection of hydrogen bond dynamics over time.)
+xmgrace -hardcopy -hdevice EPS hb.xvg  (command)
+epstopdf hb.eps  (command)
 
 ## Added command for calculating the radius of gyration using GROMACS to analyze MD simulation results
 gmx gyrate -s MD.tpr -f MD_center.xtc -o gyrate1.xvg  (command)
 Select a group:
 1    (Group 1 : Protein)
 xmgrace gyrate1.xvg  (Used xmgrace to visualize the radius of gyration data from gyrate1.xvg)
+xmgrace -hardcopy -hdevice EPS gyrate1.xvg (command)
+epstopdf gyrate1.eps  (command)
 
 ## Extracted energy components from MD simulation using gmx energy and saved results to energy1.xvg for analysis
 gmx energy -f MD.edr -o energy1.xvg  (command)
 Select the terms you want from the following list by:
 48  (# Selected T-Protein_LIG (48) to analyze the protein-ligand complex in the simulation)
 xmgrace -nxy energy1.xvg  (# Visualized energy data from energy1.xvg using xmgrace with an XY plot format)
+xmgrace -hardcopy -hdevice EPS energy1.xvg  (command)
+epstopdf energy1.eps  (command)
