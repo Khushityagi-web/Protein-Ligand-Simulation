@@ -20,8 +20,8 @@ Ionized solvated system file: box_sol_ion.gro
 Energy Minimization: EM.gro,EM.log,EM.edr
 NVT Equilibration: NVT.gro, NVT.cpt
 NPT Equilibration: NPT.gro, NPT.cpt 
-MD Simulation: MD.tpr, MD.xtc, MD_center.xtc
-Visulization and Results
+MD Simulation: MD.tpr, MD.xtc, MD_center.xtc,
+Visulization and Results.
 
 # Tools and Software:
 Structure Preparation:
