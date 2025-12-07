@@ -1,55 +1,169 @@
-# Molecular Docking and Dynamics Simulation of Erlotinib with EGFR: A Computational Approach to Cancer Therapeutics
-#  Project Overview
-This mini-project focuses on the molecular docking and molecular dynamics (MD) simulation of Erlotinib, a well-known tyrosine kinase inhibitor, with epidermal growth factor receptor (EGFR). The study aims to explore the binding interactions, stability, and conformational changes of the Erlotinib-EGFR complex to provide insights into its therapeutic potential in cancer treatment.
+# Molecular Docking and Molecular Dynamics Simulation of Erlotinib with EGFR
 
-# Repository Contents
-MD_Simulation_Scripts – Molecular docking script, docking protocol, and docking results.
-Post-MDSimulation Assessment – Input and output files for molecular dynamics simulations, including configuration files and trajectory data. Python scripts for post-MD analysis, including RMSD, RMSF, hydrogen bonding, and binding energy calculations.
-README.md - Project Description, Overview and instructions for using this repository.
+A Computational Approach to Cancer Therapeutics
 
-# Input Files:
-Ligand structure file: LIG_sp.pdb 
-Receptor structure file: REC.pdb 
-Simulation box file: box.gro 
-Solvated system file: box_sol.gro
-Topology file: topol.top 
-Ion addition parameter file: ions.mdp 
-Ionized solvated system file: box_sol_ion.gro 
+## Project Overview
 
-# Molecular Dynamics Output Files: 
-Energy Minimization: EM.gro,EM.log,EM.edr
+This project investigates the interaction between Erlotinib, a tyrosine kinase inhibitor, and the EGFR receptor using molecular docking and molecular dynamics (MD) simulation.
+The goal is to understand binding affinity, complex stability, and structural changes.
+Steps were performed manually during learning; workflow notes are included.
+
+## Repository Structure
+Protein-Ligand-Simulation/
+
+├── Docking/
+
+
+│   ├── receptor/
+│   │   └── REC.pdb
+│   
+
+├── ligand/
+│   │   ├── LIG_sp.pdb
+│   │   └── LIG.mol2
+│   
+
+└── docking_results/
+│       └── bestcomplex.pdbqt
+
+
+├── MD_Simulation/
+│   
+
+├── input_files/
+│   │   ├── box.gro
+│   │   ├── box_sol.gro
+│   │   ├── box_sol_ion.gro
+│   │   ├── topol.top
+│   │   └── ions.mdp
+│   
+
+
+└── outputs/
+│       ├── EM.gro
+│       ├── EM.edr
+│       ├── EM.log
+│       ├── NVT.gro
+│       ├── NVT.cpt
+│       ├── NPT.gro
+│       ├── NPT.cpt
+│       ├── MD.tpr
+│       ├── MD.xtc
+│       └── MD_center.xtc
+
+
+
+├── MD_Simulation_Scripts
+│   (workflow notes)
+│
+├── Post-MD Simulation Assessment
+│   (analysis placeholders)
+│
+└── Visulizations and Results.pdf
+
+### Input Files
+
+LIG_sp.pdb – prepared ligand
+
+LIG.mol2 – optimized ligand
+
+REC.pdb – receptor
+
+box.gro – simulation box
+
+box_sol.gro – solvated system
+
+box_sol_ion.gro – ionized solvated system
+
+topol.top – topology
+
+ions.mdp – ion parameter file
+
+### MD Output Files
+
+Energy Minimization: EM.gro, EM.edr, EM.log
+
 NVT Equilibration: NVT.gro, NVT.cpt
-NPT Equilibration: NPT.gro, NPT.cpt 
-MD Simulation: MD.tpr, MD.xtc, MD_center.xtc,
-Visulization and Results.
 
-# Tools and Software:
-Structure Preparation:
-PyMOL: Converts ligand structures (SDF to PDB). Ensures compatibility.
-ChimeraX: Cleans protein structures (removes water molecules). Prepares for docking.
-AutoDock Tools (ADT): Prepares protein and ligand for docking (adds hydrogens, assigns charges).
-Avogadro: Optimizes ligand structures for accuracy.
-SwissParam: Generates force field parameters for small molecules.
-BIOVIA Discovery Studio: Analyzes molecular interactions.
-Docking and MD Simulation:
-AutoGrid & AutoDock: Defines grid and predicts binding pose of Erlotinib.
-GROMACS: Conducts molecular dynamics simulations.
-VMD: Visualizes MD trajectories.
-xmgrace: Plots RMSD and energy data.
-ADMET and Toxicity Prediction:
-SwissADME: Predicts ADME properties.
-PROtox 3.0: Assesses toxicity profiles.
+NPT Equilibration: NPT.gro, NPT.cpt
 
-# Workflow Summary:
-1. Protein & Ligand Preparation: Retrieve structures, clean, add charges, optimize ligand.
-2. Molecular Docking: Define grid, dock ligand, analyze binding interactions.
-3. Molecular Dynamics Simulation: Setup system, energy minimization, equilibration (NVT/NPT), run MD.
-4. Post-Simulation Analysis: Compute RMSD, RMSF, hydrogen bonds, energy profiles.
-5. ADMET & Toxicity Prediction: Evaluate drug-likeness and safety profile of Erlotinib.
-6. Target Prediction: Identify biological targets using SwissTarget Prediction.
-This streamlined workflow ensures efficient docking and simulation analysis of Erlotinib with EGFR.
+Production MD: MD.tpr, MD.xtc, MD_center.xtc
 
-# Key Results
-Binding Affinity: Docking score analysis
-Complex Stability: RMSD and RMSF analysis
-Hydrogen Bonding: Interaction insights
+### Visualization outputs are included in Visulizations and Results.pdf.
+
+## Tools and Software Used
+### Structure Preparation
+
+PyMOL
+
+ChimeraX
+
+AutoDock Tools
+
+Avogadro
+
+SwissParam
+
+BIOVIA Discovery Studio
+
+Docking & Simulation
+
+AutoGrid
+
+AutoDock
+
+GROMACS
+
+VMD
+
+XMGrace
+
+ADMET & Toxicity
+
+SwissADME
+
+PROTox-3
+
+SwissTargetPrediction
+
+## Workflow Summary
+### 1. Protein & Ligand Preparation
+
+Cleaning, hydrogens, optimization, force field parameters.
+
+### 2. Molecular Docking
+
+Grid definition, docking, and pose selection.
+
+### 3. Molecular Dynamics Simulation
+
+Box setup → solvation → ions → EM → NVT → NPT → production MD.
+
+### 4. Post-MD Analysis
+
+RMSD, RMSF, hydrogen bonds, energy analysis, trajectory correction.
+
+### 5. ADMET & Toxicity
+
+Drug-likeness and toxicity assessment.
+
+## Key Results
+
+Stable docking pose
+
+RMSD & RMSF show stable dynamics
+
+Hydrogen bonds stay consistent
+
+Energy profiles confirm proper equilibration
+
+## Future Improvements
+
+Add executable .sh / .py scripts
+
+Add .xvg files
+
+Implement MM/PBSA
+
+Add more plots and comparative results
+
